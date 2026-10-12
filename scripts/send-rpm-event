@@ -22,7 +22,7 @@ def parse_args():
 def main():
     args = parse_args()
     portal_url = os.environ["SCAN_RESULTS_PORTAL_URL"].rstrip("/")
-    token = os.environ["SCAN_RESULTS_PORTAL_TOKEN"]
+    token = os.environ["SCAN_SERVICE_INGEST_TOKEN"]
     event_time = args.event_time or datetime.now(timezone.utc).isoformat()
     payload = {
         "event": args.event,
