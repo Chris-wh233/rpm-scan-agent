@@ -7,12 +7,12 @@ LoongArch64 Jenkins inbound agent for RPM vulnerability scans with
 镜像构建、容器启动与运行时配置都由上级目录的 `docker-compose.yml` 与
 `.env` 统一管理。
 
-Persistent host data:
+Persistent host data（路径来自 `scan-service/.env` 的「宿主机目录」分区）：
 
 ~~~text
-/home/chris/proj/jenkins/data/rpm-scan-agent/cache/cve-bin-tool
-/home/chris/proj/jenkins/data/rpm-scan-agent/workspace
-/home/chris/proj/jenkins/data/inputs/rpm
+RPM_SCAN_CVE_DB_HOST_PATH             漏洞库，挂到容器 /data/cve-db
+RPM_SCAN_AGENT_WORKSPACE_HOST_PATH    agent 工作目录，挂到容器 /home/jenkins/agent
+RPM_SCAN_INPUT_HOST_PATH              待扫描 RPM，只读挂到容器 /scan-input
 ~~~
 
 ## 配置

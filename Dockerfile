@@ -7,7 +7,8 @@ ARG JENKINS_AGENT_JAR_URL=http://10.130.43.224:18080/jnlpJars/agent.jar
 
 ENV PATH="/cve-bin-tool/.venv/bin:${PATH}" \
     HOME=/home/jenkins \
-    JENKINS_AGENT_WORKDIR=/home/jenkins/agent
+    JENKINS_AGENT_WORKDIR=/home/jenkins/agent \
+    XDG_CACHE_HOME=/data/cve-db
 
 USER root
 
@@ -43,12 +44,14 @@ RUN mkdir -p /cve-bin-tool /usr/share/jenkins && \
       --output /usr/share/jenkins/agent.jar \
       "${JENKINS_AGENT_JAR_URL}"
 
-RUN groupadd --gid 1000 jenkins && \
-    useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash jenkins && \
+ARG AGENT_UID=1000
+ARG AGENT_GID=1000
+RUN groupadd --gid ${AGENT_GID} jenkins && \
+    useradd --uid ${AGENT_UID} --gid ${AGENT_GID} --create-home --shell /bin/bash jenkins && \
     mkdir -p \
       /home/jenkins/agent \
-      /home/jenkins/.cache/cve-bin-tool && \
-    chown -R jenkins:jenkins /home/jenkins
+      /data/cve-db && \
+    chown -R jenkins:jenkins /home/jenkins /data/cve-db
 
 COPY scripts/run-rpm-scan /usr/local/bin/run-rpm-scan
 COPY scripts/send-rpm-event /usr/local/bin/send-rpm-event
@@ -61,5 +64,8 @@ RUN chmod 0755 \
 
 USER jenkins
 WORKDIR /home/jenkins/agent
+
+# 下载 cve 库（也可通过第一次扫描时自动下载）
+# cve-bin-tool -u now
 
 ENTRYPOINT ["jenkins-agent-entrypoint"]
