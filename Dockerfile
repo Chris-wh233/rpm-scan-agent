@@ -55,17 +55,16 @@ RUN groupadd --gid ${AGENT_GID} jenkins && \
 
 COPY scripts/run-rpm-scan /usr/local/bin/run-rpm-scan
 COPY scripts/send-rpm-event /usr/local/bin/send-rpm-event
+COPY scripts/update-cve-db /usr/local/bin/update-cve-db
 COPY scripts/jenkins-agent-entrypoint /usr/local/bin/jenkins-agent-entrypoint
 
 RUN chmod 0755 \
       /usr/local/bin/run-rpm-scan \
       /usr/local/bin/send-rpm-event \
+      /usr/local/bin/update-cve-db \
       /usr/local/bin/jenkins-agent-entrypoint
 
 USER jenkins
 WORKDIR /home/jenkins/agent
-
-# 下载 cve 库（也可通过第一次扫描时自动下载）
-# cve-bin-tool -u now
 
 ENTRYPOINT ["jenkins-agent-entrypoint"]

@@ -22,6 +22,10 @@ rpm_size=$(stat --format='%s' "$input_rpm")
 scanner_version=$(cve-bin-tool --version)
 started_at=$(date --iso-8601=seconds)
 update_mode=${CVE_UPDATE_MODE:-never}
+if [[ "$update_mode" != "never" ]]; then
+  echo "CVE_UPDATE_MODE 必须为 never：漏洞库的更新请使用 update-cve-db（避免并发写库）" >&2
+  exit 2
+fi
 output_base="$output_dir/scan-results"
 scan_log="$output_dir/scan.log"
 
@@ -31,6 +35,13 @@ if [[ ${#rpm_fields[@]} -lt 6 ]]; then
   echo "Unable to read RPM metadata: $input_rpm" >&2
   exit 2
 fi
+
+# 扫描期间持共享锁：多个扫描可并行，但会与 update-cve-db 的排他锁互斥，
+# 保证"更新库"与"读库"不会同时发生。
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}"
+mkdir -p "$cache_dir"
+exec 8>"$cache_dir/.cve-db.lock"
+flock --shared 8
 
 set +e
 cve-bin-tool \
