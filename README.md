@@ -1,13 +1,12 @@
 # RPM Scan Agent
 
-LoongArch64 Jenkins inbound agent for RPM vulnerability scans with
-`cve-bin-tool`.
+LoongArch64 Jenkins inbound agent，用 `cve-bin-tool` 扫描 RPM 包。
 
 本组件是 `scan-service` 扫描服务栈的一部分。
 镜像构建、容器启动与运行时配置都由上级目录的 `docker-compose.yml` 与
 `.env` 统一管理。
 
-Persistent host data（路径来自 `scan-service/.env` 的「宿主机目录」分区）：
+持久化（路径来自 `scan-service/.env` 的「宿主机目录」分区）：
 
 ~~~text
 RPM_SCAN_CVE_DB_HOST_PATH             漏洞库，挂到容器 /data/cve-db
@@ -20,18 +19,12 @@ RPM_SCAN_INPUT_HOST_PATH              待扫描 RPM，只读挂到容器 /scan-i
 运行时配置位于 `scan-service/.env` 的 `rpm-scan-agent` 分区，由 compose
 注入容器：
 
-~~~text
-JENKINS_URL=http://<jenkins-host>:18080
-RPM_SCAN_AGENT_NAME=rpm-scan-agent-01
-RPM_SCAN_AGENT_SECRET=<inbound agent secret>
-CVE_UPDATE_MODE=never
-CVE_DB_UPDATE_LOCK_TIMEOUT=3600
-CVE_DB_UPDATE_TIMEOUT=3600
-SCAN_RESULTS_PORTAL_URL=http://scan-results-portal:8080
-~~~
-
-`JENKINS_AGENT_JAR_URL`（构建镜像时下载 agent.jar 用）位于 `scan-service/.env`
-的「外部 Jenkins」分区。
+| 键 | 说明 |
+| --- | --- |
+| `RPM_SCAN_AGENT_NAME` / `RPM_SCAN_AGENT_SECRET` | Jenkins permanent agent 名称与 inbound secret |
+| `CVE_UPDATE_MODE` | 扫描时的漏洞库更新模式，始终保持为 never |
+| `CVE_DB_UPDATE_LOCK_TIMEOUT` | 更新漏洞库时的锁等待上限 |
+| `CVE_DB_UPDATE_TIMEOUT` | 更新漏洞库本身的总时长上限 |
 
 ## 启动
 

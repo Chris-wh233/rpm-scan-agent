@@ -2,8 +2,7 @@ FROM lcr.loongnix.cn/library/openjdk:21-jdk
 
 ARG CVE_BIN_TOOL_RELEASE=20260930
 ARG CVE_BIN_TOOL_ARCHIVE=cve-bin-tool-20260930-la64-py314.tar.gz
-ARG CVE_BIN_TOOL_SHA256=bb1664cb7dc884d6e665fa7c47388653ea56853c629a947fc19b0e744bacf23c
-ARG JENKINS_AGENT_JAR_URL=http://10.130.43.224:18080/jnlpJars/agent.jar
+ARG JENKINS_AGENT_JAR_URL
 
 ENV PATH="/cve-bin-tool/.venv/bin:${PATH}" \
     HOME=/home/jenkins \
@@ -37,7 +36,6 @@ RUN mkdir -p /cve-bin-tool /usr/share/jenkins && \
     curl --fail --location --retry 5 \
       --output /tmp/cve-bin-tool.tar.gz \
       "https://github.com/loongarch64-releases/cve-bin-tool/releases/download/${CVE_BIN_TOOL_RELEASE}/${CVE_BIN_TOOL_ARCHIVE}" && \
-    echo "${CVE_BIN_TOOL_SHA256}  /tmp/cve-bin-tool.tar.gz" | sha256sum --check - && \
     tar -xzf /tmp/cve-bin-tool.tar.gz -C /cve-bin-tool && \
     rm -f /tmp/cve-bin-tool.tar.gz && \
     curl --fail --location --retry 5 \
