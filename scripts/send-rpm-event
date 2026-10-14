@@ -15,7 +15,7 @@ def parse_args():
     parser.add_argument("--rpm-name", required=True)
     parser.add_argument("--rpm-sha256", required=True)
     parser.add_argument("--event-time")
-    parser.add_argument("--scanner-exit-code", type=int)
+    parser.add_argument("--cbt-exit-code", type=int)
     return parser.parse_args()
 
 
@@ -29,13 +29,12 @@ def main():
         "scan_key": args.scan_key,
         "jenkins_build_number": int(os.environ["BUILD_NUMBER"]),
         "jenkins_job_full_name": os.environ["JOB_NAME"],
-        "jenkins_build_url": os.environ.get("BUILD_URL"),
         "rpm_name": args.rpm_name,
         "rpm_sha256": args.rpm_sha256,
     }
     payload["created_at" if args.event == "started" else "finished_at"] = event_time
-    if args.scanner_exit_code is not None:
-        payload["scanner_exit_code"] = args.scanner_exit_code
+    if args.cbt_exit_code is not None:
+        payload["cbt_exit_code"] = args.cbt_exit_code
 
     request = Request(
         f"{portal_url}/api/v1/rpm/events",
