@@ -2,21 +2,35 @@
 set -euo pipefail
 
 if [[ $# -ne 2 ]]; then
-  echo "Usage: run-rpm-scan INPUT_RPM OUTPUT_DIRECTORY" >&2
+  echo "Usage: run-rpm-scan RPM_NAME OUTPUT_DIRECTORY" >&2
   exit 2
 fi
 
-input_rpm=$1
+rpm_name=$1
 output_dir=$2
 
-if [[ ! -f "$input_rpm" ]]; then
+case "$rpm_name" in
+  ''|.|..|*/*)
+    echo "RPM_NAME must be a file name without path components: $rpm_name" >&2
+    exit 2
+    ;;
+esac
+
+if [[ "$rpm_name" != *.rpm ]]; then
+  echo "RPM_NAME must end with .rpm: $rpm_name" >&2
+  exit 2
+fi
+
+input_container_dir="/scan-input"
+input_rpm="$input_container_dir/$rpm_name"
+
+if [[ ! -s "$input_rpm" ]]; then
   echo "RPM input does not exist: $input_rpm" >&2
   exit 2
 fi
 
 mkdir -p "$output_dir"
 
-rpm_name=$(basename -- "$input_rpm")
 rpm_sha256=$(sha256sum "$input_rpm" | awk '{print $1}')
 rpm_size=$(stat --format='%s' "$input_rpm")
 scanner_version=$(cve-bin-tool --version)
