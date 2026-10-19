@@ -88,5 +88,6 @@ docker compose --profile cve-db run --rm cve-db-update --nvd-api-key <key>
 并把其 inbound-agent secret 写入 `scan-service/.env` 的
 `RPM_SCAN_AGENT_SECRET`。
 
-Pipeline 参数 `RPM_NAME` 只填写完整 RPM 文件名，不包含目录；`run-rpm-scan` 会在
-只读挂载目录 `/scan-input` 下解析该文件。
+Pipeline 参数 `RPM_NAMES` 每行填写一个完整 RPM 文件名，不包含目录；
+Pipeline 会先校验并去重，再逐个调用 `run-rpm-scan` 在只读挂载目录
+`/scan-input` 下解析文件。
